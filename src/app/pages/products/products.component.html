@@ -1,0 +1,32 @@
+<div class="products-page">
+    <div class="filters">
+    <select [(ngModel)]="selectedStore">
+      <option value="">Todas las tiendas</option>
+      <option *ngFor="let s of stores()" [value]="s.id">{{ s.name }}</option>
+    </select>
+
+    <select [(ngModel)]="selectedBrand">
+      <option value="">Todas las marcas</option>
+      <option *ngFor="let b of brands()" [value]="b">{{ b }}</option>
+    </select>
+
+    <button type="button" (click)="applyFilters()" class="apply-filter">
+      Aplicar filtro
+    </button>
+  </div>
+
+    <div class="product-grid">
+    <div *ngFor="let p of filteredProducts()" class="card">
+      <img [ngSrc]="p.image_url" [alt]="p.name" width="180" height="180" />
+      <h3>{{ p.name }}</h3>
+      <p>{{ p.price | currency:'COP' }}</p>
+      <a [href]="p.link" target="_blank" class="btn-buy">Ir a la tienda</a>
+    </div>
+  </div>
+  
+  <div class="add-product-container">
+    <button type="button" (click)="addProduct()" class="btn-add-product">
+      Agregar producto
+    </button>
+  </div>
+</div>

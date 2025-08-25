@@ -1,0 +1,20 @@
+<header>
+  <img src="Logo.png" alt="Logo" class="logo" routerLink="/">
+
+  <p class="namePag" routerLink="/">¡Celumundo!</p>
+   <a class="link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+    home</a>
+
+
+  <a class="link" routerLink="/products" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+    Productos
+  </a>
+
+  <a class="link" routerLink="/store" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+    Marcas
+  </a>
+
+  <a class="link" routerLink="/login" routerLinkActive="active">
+    <tui-icon icon="@tui.user" [style.color]="'var(--primaryColor)'" />
+  </a>
+</header>

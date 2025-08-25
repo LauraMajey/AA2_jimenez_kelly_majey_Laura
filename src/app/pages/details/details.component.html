@@ -1,0 +1,66 @@
+<div class="container" *ngIf="product && store">
+    <section class="product">
+    <div class="image">
+      <img
+        [ngSrc]="product.image_url"
+        [alt]="product.name"
+        width="250"
+        height="250"
+      />
+    </div>
+
+    <div class="data">
+      <h1>{{ product.name }}</h1>
+      <p>{{ product.description }}</p>
+      <h2>{{ product.price | currency: 'COP' }}</h2>
+      <a>{{ product.link }}</a>
+      <hr />
+
+      <div class="store-info">
+        <h5>Vendido por:{{ store.name }}</h5>
+        <h3 *ngIf="store.score > 0">Calificación de tienda: {{ getScore(store.score) }}</h3>
+      </div>
+    </div>
+  </section>
+
+    <section class="comments-section">
+    <h2>Comentarios</h2>
+    <div class="comment-input">
+      <textarea [(ngModel)]="newCommentText" placeholder="Escribe tu comentario..."></textarea>
+      <button (click)="addComment()" [disabled]="!newCommentText">Enviar</button>
+    </div>
+    <div class="comments-list">
+      <div *ngFor="let comment of comments()" class="comment-item">
+        <p>{{ comment.text }}</p>
+        <small>{{ comment.timestamp | date:'short' }}</small>
+      </div>
+    </div>
+  </section>
+
+    <section class="store-product-list" *ngIf="productList().length > 0">
+    <h2>Otros productos de {{ store.name }}:</h2>
+    <div class="card-container">
+      <div *ngFor="let item of productList()" class="card">
+        <img
+          *ngIf="item.image_url; else noImage"
+          [ngSrc]="item.image_url"
+          [alt]="item.name"
+          width="180"
+          height="180"
+        />
+        <ng-template #noImage>
+          <div class="imageEmpty"></div>
+        </ng-template>
+
+        <div class="card-content">
+          <h3>{{ item.name }}</h3>
+          <p class="price">{{ item.price | currency: 'COP' }}</p>
+          
+                    <a tuiButton appearance="primary" [routerLink]="['/details', item.id]" class="tui-button-link">
+            Ver detalle
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

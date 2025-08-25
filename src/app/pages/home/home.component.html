@@ -1,0 +1,66 @@
+<div class="container">
+
+  <!-- Banner principal -->
+  <section class="banner banner-principal">
+    <div class="banner-text">
+      <h1>Celumundo</h1>
+      <h2>Tu mejor opción</h2>
+    </div>
+  </section>
+
+  <!-- Productos promocionales -->
+  <section class="economics">
+    <h2 class="section-title">Productos Promocionales</h2>
+
+    <!-- Filtros alineados a la derecha -->
+    <section class="filters" style="display: flex; justify-content: flex-end; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;">
+      <input
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="applyFilters()"
+        placeholder="Buscar por nombre o marca"
+        style="padding: 0.5rem;"
+      />
+
+      <select [(ngModel)]="selectedType" (ngModelChange)="applyFilters()" style="padding: 0.5rem;">
+        <option value="">Todos los tipos</option>
+        <option *ngFor="let type of types">{{ type }}</option>
+      </select>
+
+      <select [(ngModel)]="selectedBrand" (ngModelChange)="applyFilters()" style="padding: 0.5rem;">
+        <option value="">Todas las marcas</option>
+        <option *ngFor="let brand of brands">{{ brand }}</option>
+      </select>
+    </section>
+
+    <div class="card-container">
+      <div *ngFor="let item of filteredProducts" class="card">
+        <div class="card-image" style="position: relative; width: 100%; height: 150px;">
+          <img
+            *ngIf="item.image_url; else noImage"
+            [ngSrc]="item.image_url"
+            [alt]="item.name"
+            fill
+            style="object-fit: contain;"
+          />
+          <ng-template #noImage>
+            <div class="imageEmpty">Sin imagen</div>
+          </ng-template>
+        </div>
+        <div class="card-content">
+          <h3>{{ item.name || 'Producto' }}</h3>
+          <p class="price">{{ item.price | currency:'COP' }}</p>
+          <p class="meta">
+            Marca: {{ item.brand }} |
+            Tipo: {{ item.type }} |
+            Lanzado: {{ item.release_date | date:'mediumDate' }}
+          </p>
+          <a tuiButton appearance="primary" [routerLink]="['/details', item.id]" class="tui-button-link">
+            Ver detalle
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+</div>
