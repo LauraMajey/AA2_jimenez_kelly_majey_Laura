@@ -30,8 +30,10 @@ export class StoreService {
   }
 
   getScore(score: number): string {
-    if (score >= 4.5) return 'Excelente';
-    if (score >= 3.5) return 'Bueno';
-    return 'Regular';
+    if (score >= 4.5) return 'Excelente ⭐⭐⭐⭐⭐';
+    if (score >= 3.5) return 'Muy buena ⭐⭐⭐⭐';
+    if (score >= 2.5) return 'Buena ⭐⭐⭐';
+    if (score >= 1.5) return 'Regular ⭐⭐';
+    return 'Mala ⭐';
   }
 }

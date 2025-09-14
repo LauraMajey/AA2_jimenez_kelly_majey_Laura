@@ -1,13 +1,13 @@
 export interface Product {
-  id?: number;
+  id: number;
   name: string;
-  description: string;
-  price: number;
+  description: string | null;
+  price: string;
   stock: number;
+  tienda_id: number;
   brand: string;
   type: string;
-  release_date: string; // YYYY-MM-DD
-  tienda_id?: number;
-  image_url?: string;
-  link?: string;
+  release_date: string;
+  image_url: string | null;
+  link: string;
 }

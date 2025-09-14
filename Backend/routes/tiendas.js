@@ -13,10 +13,19 @@ router.post('/', async (req, res) => {
   res.json({ id: result.insertId, nombre, direccion, telefono });
 });
 
-// Listar tiendas
+// Listar todas las tiendas
 router.get('/', async (req, res) => {
   const [rows] = await pool.query('SELECT * FROM tiendas');
   res.json(rows);
+});
+
+// Obtener tienda por ID ✅
+router.get('/:id', async (req, res) => {
+  const [rows] = await pool.query('SELECT * FROM tiendas WHERE id = ?', [req.params.id]);
+  if (rows.length === 0) {
+    return res.status(404).json({ message: 'Tienda no encontrada' });
+  }
+  res.json(rows[0]);
 });
 
 // Actualizar tienda

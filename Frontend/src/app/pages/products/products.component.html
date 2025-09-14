@@ -1,32 +1,63 @@
 <div class="products-page">
-    <div class="filters">
-    <select [(ngModel)]="selectedStore">
-      <option value="">Todas las tiendas</option>
-      <option *ngFor="let s of stores()" [value]="s.id">{{ s.name }}</option>
-    </select>
+  <!-- Sección de filtros -->
+  <section class="filters-section">
+    <h2>🎯 Filtrar productos</h2>
 
-    <select [(ngModel)]="selectedBrand">
-      <option value="">Todas las marcas</option>
-      <option *ngFor="let b of brands()" [value]="b">{{ b }}</option>
-    </select>
+    <div class="filter-group">
+      <label for="search">🔍 Buscar:</label>
+      <input 
+        id="search" 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        (ngModelChange)="applyFilters()" 
+        placeholder="Nombre, marca o tipo"
+      />
+    </div>
 
-    <button type="button" (click)="applyFilters()" class="apply-filter">
-      Aplicar filtro
-    </button>
-  </div>
+    <div class="filter-group">
+      <label for="type">📦 Tipo:</label>
+      <select id="type" [(ngModel)]="selectedType" (ngModelChange)="applyFilters()">
+        <option value="">Todos los tipos</option>
+        <option *ngFor="let t of types" [value]="t">{{ t }}</option>
+      </select>
+    </div>
 
-    <div class="product-grid">
-    <div *ngFor="let p of filteredProducts()" class="card">
-      <img [ngSrc]="p.image_url" [alt]="p.name" width="180" height="180" />
-      <h3>{{ p.name }}</h3>
-      <p>{{ p.price | currency:'COP' }}</p>
-      <a [href]="p.link" target="_blank" class="btn-buy">Ir a la tienda</a>
-    </div>
-  </div>
-  
-  <div class="add-product-container">
-    <button type="button" (click)="addProduct()" class="btn-add-product">
-      Agregar producto
-    </button>
+    <div class="filter-group">
+      <label for="brand">🏷️ Marca:</label>
+      <select id="brand" [(ngModel)]="selectedBrand" (ngModelChange)="applyFilters()">
+        <option value="">Todas las marcas</option>
+        <option *ngFor="let b of brands" [value]="b">{{ b }}</option>
+      </select>
+    </div>
+  </section>
+
+  <!-- Sección de productos -->
+  <section class="product-list-container">
+    <div class="product-card" *ngFor="let item of filteredProducts()">
+      <img 
+        [ngSrc]="item.image_url ?? 'assets/placeholder.webp'" 
+        [alt]="item.name ?? 'Imagen de producto'" 
+        width="200" 
+        height="200"
+      />
+
+      <div class="card-text">
+        <h3>{{ item.name }}</h3>
+        <p class="price">{{ item.price | currency:'COP':'symbol-narrow':'1.0-0' }}</p>
+      </div>
+
+      <a [routerLink]="['/details', item.id]" class="view-details-button">
+        <button tuiButton appearance="primary">🔎 Ver detalle</button>
+      </a>
+    </div>
+
+    <div *ngIf="filteredProducts().length === 0" class="no-results-message">
+      No se encontraron productos que coincidan con los filtros.
+    </div>
+  </section>
+   <div class="add-button-global">
+    <a [routerLink]="['/add-product']">
+      <button tuiButton appearance="secondary">➕ Añadir a tienda</button>
+    </a>
   </div>
 </div>

@@ -1,56 +1,83 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { CommonModule, NgOptimizedImage } from '@angular/common';
+import {Component,OnInit,inject,signal,} from '@angular/core';
+import {ActivatedRoute,RouterLink,} from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
 import { ProductService } from '../../services/product.service';
 import { StoreService } from '../../services/store.service';
+import { CommentService } from '../../services/comment.service';
+
 import { Product } from '../../interfaces/product';
 import { Store } from '../../interfaces/store';
+import { ProductComment } from '../../interfaces/productcomment';
 
 @Component({
   selector: 'app-details',
   standalone: true,
-  imports: [CommonModule, NgOptimizedImage, RouterModule],
+  imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './details.component.html',
-  styleUrls: ['./details.component.scss']
+  styleUrls: ['./details.component.scss'],
 })
 export default class DetailsComponent implements OnInit {
-  #route = inject(ActivatedRoute);
-  #router = inject(Router);
-  #productService = inject(ProductService);
-  #storeService = inject(StoreService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly productService = inject(ProductService);
+  private readonly storeService = inject(StoreService);
+  private readonly commentService = inject(CommentService);
 
-  product?: Product;
-  store?: Store;
-  relatedProducts: Product[] = [];
-
-  private itemId!: number;
+  public readonly product = signal<Product | undefined>(undefined);
+  public readonly store = signal<Store | undefined>(undefined);
+  public readonly comments = signal<ProductComment[]>([]);
+  public newCommentText = '';
 
   ngOnInit(): void {
-    // ✅ obtener id desde la URL
-    this.itemId = +this.#route.snapshot.paramMap.get('id')!;
+    const productId = Number(this.route.snapshot.paramMap.get('id'));
+    if (!productId) return;
 
-    // ✅ cargar productos desde el servicio
-    this.#productService.getProducts().subscribe(products => {
-      // buscar el producto actual
-      this.product = products.find(p => p.id === this.itemId);
+    this.loadProduct(productId);
+    this.loadComments(productId);
+  }
 
-      if (this.product) {
-        // ✅ cargar tienda correspondiente
-        if (this.product.tienda_id) {
-          this.#storeService.getStore(this.product.tienda_id).subscribe(store => {
-            this.store = store;
+  private loadProduct(id: number): void {
+    this.productService.getProduct(id).subscribe({
+      next: (product: Product) => {
+        this.product.set(product);
+
+        // Solo obtenemos la tienda para mostrar su logo
+        if (product.tienda_id) {
+          this.storeService.getStore(product.tienda_id).subscribe({
+            next: (store: Store) => this.store.set(store),
+            error: (err: any) => console.error('Error fetching store logo:', err),
           });
         }
-
-        // ✅ productos relacionados (ejemplo: misma marca, diferente id)
-        this.relatedProducts = products
-          .filter(p => p.id !== this.itemId && p.brand === this.product?.brand)
-          .slice(0, 4);
-      }
+      },
+      error: (err: any) => console.error('Error fetching product data:', err),
     });
   }
 
-  goBack(): void {
-    this.#router.navigate(['/products']);
+  private loadComments(productId: number): void {
+    this.commentService.getCommentsByProduct(productId).subscribe({
+      next: (data: ProductComment[]) => this.comments.set(data),
+      error: (err: any) => console.error('Error loading comments:', err),
+    });
+  }
+
+  public addComment(): void {
+    const productId = this.product()?.id;
+    const text = this.newCommentText.trim();
+
+    if (!productId || !text) return;
+
+    const newComment: Partial<ProductComment> = {
+      product_id: productId,
+      text,
+    };
+
+    this.commentService.addComment(newComment).subscribe({
+      next: (saved: ProductComment) => {
+        this.comments.update((prev) => [...prev, saved]);
+        this.newCommentText = '';
+      },
+      error: (err: any) => console.error('Error adding comment:', err),
+    });
   }
 }
