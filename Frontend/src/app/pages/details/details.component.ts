@@ -1,70 +1,56 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { ProductService } from '../../services/product.service';
 import { StoreService } from '../../services/store.service';
 import { Product } from '../../interfaces/product';
 import { Store } from '../../interfaces/store';
-import { TuiButton } from '@taiga-ui/core';
-import { CommonModule, CurrencyPipe, NgOptimizedImage } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms'; // Import FormsModule
-
-// New interface for comments
-interface Comment {
-  text: string;
-  timestamp: Date;
-}
 
 @Component({
   selector: 'app-details',
   standalone: true,
-  imports: [CommonModule, NgOptimizedImage, TuiButton, CurrencyPipe, RouterModule, FormsModule],
+  imports: [CommonModule, NgOptimizedImage, RouterModule],
   templateUrl: './details.component.html',
   styleUrls: ['./details.component.scss']
 })
 export default class DetailsComponent implements OnInit {
-  #activatedRoute = inject(ActivatedRoute);
+  #route = inject(ActivatedRoute);
+  #router = inject(Router);
   #productService = inject(ProductService);
   #storeService = inject(StoreService);
 
-  protected itemId!: number;
-  protected product!: Product;
-  protected store!: Store;
-  protected productList = signal<Product[]>([]);
+  product?: Product;
+  store?: Store;
+  relatedProducts: Product[] = [];
 
-  // Properties for comments
-  protected newCommentText: string = '';
-  protected comments = signal<Comment[]>([]);
+  private itemId!: number;
 
   ngOnInit(): void {
-    this.#activatedRoute.params.subscribe(params => {
-      this.itemId = Number(params['id']);
-      this.loadProduct();
+    // ✅ obtener id desde la URL
+    this.itemId = +this.#route.snapshot.paramMap.get('id')!;
+
+    // ✅ cargar productos desde el servicio
+    this.#productService.getProducts().subscribe(products => {
+      // buscar el producto actual
+      this.product = products.find(p => p.id === this.itemId);
+
+      if (this.product) {
+        // ✅ cargar tienda correspondiente
+        if (this.product.tienda_id) {
+          this.#storeService.getStore(this.product.tienda_id).subscribe(store => {
+            this.store = store;
+          });
+        }
+
+        // ✅ productos relacionados (ejemplo: misma marca, diferente id)
+        this.relatedProducts = products
+          .filter(p => p.id !== this.itemId && p.brand === this.product?.brand)
+          .slice(0, 4);
+      }
     });
   }
 
-  private loadProduct(): void {
-    this.product = this.#productService.getProducts().find(p => p.id === this.itemId)!;
-    this.store = this.#storeService.getStore(this.product.idStore);
-
-    this.productList.set(
-      this.#productService
-        .getProducts()
-        .filter(p => p.id !== this.itemId)
-    );
+  goBack(): void {
+    this.#router.navigate(['/products']);
   }
-
-  // New method to add a comment
-  addComment(): void {
-    if (this.newCommentText.trim()) {
-      const newComment: Comment = {
-        text: this.newCommentText,
-        timestamp: new Date()
-      };
-      this.comments.update(currentComments => [...currentComments, newComment]);
-      this.newCommentText = ''; // Clear the input field
-    }
-  }
-
-  getScore = (score: number) => this.#storeService.getScore(score);
 }

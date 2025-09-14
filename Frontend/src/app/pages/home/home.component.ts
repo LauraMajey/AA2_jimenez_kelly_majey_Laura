@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TuiButton } from '@taiga-ui/core';
@@ -13,7 +13,7 @@ import { Product } from '../../interfaces/product';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export default class HomeComponent {
+export default class HomeComponent implements OnInit {
   #productService = inject(ProductService);
 
   public allProducts: Product[] = [];
@@ -30,10 +30,17 @@ export default class HomeComponent {
   }
 
   loadProducts() {
-    this.allProducts = this.#productService.getProducts();
-    this.brands = [...new Set(this.allProducts.map(p => p.brand))].sort();
-    this.types = [...new Set(this.allProducts.map(p => p.type))].sort();
-    this.applyFilters();
+    this.#productService.getProducts().subscribe({
+      next: (data) => {
+        this.allProducts = data;
+        this.brands = [...new Set(this.allProducts.map(p => p.brand))].sort();
+        this.types = [...new Set(this.allProducts.map(p => p.type))].sort();
+        this.applyFilters();
+      },
+      error: (err) => {
+        console.error('Error al cargar productos:', err);
+      }
+    });
   }
 
   applyFilters() {

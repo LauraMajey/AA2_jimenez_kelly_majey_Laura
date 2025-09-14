@@ -1,72 +1,32 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { Store } from '../interfaces/store';
 
 @Injectable({ providedIn: 'root' })
 export class StoreService {
-  #storeList: Store[] = [
-    {
-      id: 1,
-      name: 'Alkosto',
-      description: 'Tienda especializada en electrodomésticos, tecnología y hogar.',
-      image: 'stores/alkosto.webp',
-      phone: '018000180222',
-      address: 'Av. Carrera 68 #68-94, Bogotá',
-      category: 1,
-      score: 4.6,
-      likes: 980
-    },
-    {
-      id: 2,
-      name: 'Éxito',
-      description: 'Supermercado y tienda de tecnología con gran cobertura en Colombia.',
-      image: 'stores/exito.webp',
-      phone: '018000112580',
-      address: 'Cra. 65 #11-50, Medellín',
-      category: 2,
-      score: 4.3,
-      likes: 1250
-    },
-    {
-      id: 3,
-      name: 'Falabella',
-      description: 'Tienda por departamentos con amplia variedad en tecnología y moda.',
-      image: 'stores/falabella.webp',
-      phone: '018000949030',
-      address: 'Calle 80 #69-20, Bogotá',
-      category: 3,
-      score: 4.2,
-      likes: 890
-    },
-    {
-      id: 4,
-      name: 'Ktronix',
-      description: 'Especialistas en tecnología, computadores y electrodomésticos.',
-      image: 'stores/ktronix.webp',
-      phone: '6013077115',
-      address: 'Calle 13 #65-65, Bogotá',
-      category: 4,
-      score: 4.7,
-      likes: 760
-    },
-    {
-      id: 5,
-      name: 'Homecenter',
-      description: 'Tienda líder en artículos para el hogar, construcción y tecnología.',
-      image: 'stores/homecenter.webp',
-      phone: '018000123622',
-      address: 'Cra. 30 #19-45, Cali',
-      category: 5,
-      score: 4.4,
-      likes: 1120
-    }
-  ];
+  private apiUrl = 'http://localhost:3000/api/tiendas';
 
-  getStore(id: number): Store {
-    return this.#storeList.find(s => s.id === id)!;
+  constructor(private http: HttpClient) {}
+
+  getStores(): Observable<Store[]> {
+    return this.http.get<Store[]>(this.apiUrl);
   }
 
-   getStores(): Store[] {
-    return this.#storeList;
+  getStore(id: number): Observable<Store> {
+    return this.http.get<Store>(`${this.apiUrl}/${id}`);
+  }
+
+  addStore(store: Store): Observable<any> {
+    return this.http.post(this.apiUrl, store);
+  }
+
+  updateStore(id: number, store: Store): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}`, store);
+  }
+
+  deleteStore(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
 
   getScore(score: number): string {

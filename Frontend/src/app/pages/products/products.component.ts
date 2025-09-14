@@ -4,8 +4,7 @@ import { ProductService } from '../../services/product.service';
 import { StoreService } from '../../services/store.service';
 import { Product } from '../../interfaces/product';
 import { Store } from '../../interfaces/store';
-import { CommonModule } from '@angular/common';
-import { NgOptimizedImage } from '@angular/common';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
@@ -17,35 +16,55 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./products.component.scss']
 })
 export default class ProductsComponent implements OnInit {
+  // Inyecciones
   #productService = inject(ProductService);
   #storeService = inject(StoreService);
   #route = inject(ActivatedRoute);
-  #router = inject(Router); // Inject the Router service
+  #router = inject(Router);
 
+  // Signals
   products = signal<Product[]>([]);
   stores = signal<Store[]>([]);
   brands = signal<string[]>([]);
-  
   filteredProducts = signal<Product[]>([]);
 
+  // Filtros seleccionados
   selectedStore: string = '';
   selectedBrand: string = '';
 
   ngOnInit(): void {
-    this.products.set(this.#productService.getProducts());
-    this.stores.set(this.#storeService.getStores());
-    this.brands.set([...new Set(this.products().map(p => p.brand))]);
+    // Cargar productos desde el backend
+    this.#productService.getProducts().subscribe({
+      next: (data) => {
+        this.products.set(data);
+        this.brands.set([...new Set(data.map(p => p.brand))]);
 
-    this.#route.queryParams.subscribe(params => {
-      this.selectedStore = params['storeId'] || '';
-      this.selectedBrand = params['brand'] || '';
-      this.filterProducts();
+        // Leer filtros desde query params
+        this.#route.queryParams.subscribe(params => {
+          this.selectedStore = params['storeId'] || '';
+          this.selectedBrand = params['brand'] || '';
+          this.filterProducts();
+        });
+      },
+      error: (err) => {
+        console.error('Error cargando productos:', err);
+      }
+    });
+
+    // Cargar tiendas desde el backend
+    this.#storeService.getStores().subscribe({
+      next: (data) => {
+        this.stores.set(data);
+      },
+      error: (err) => {
+        console.error('Error cargando tiendas:', err);
+      }
     });
   }
-  
+
   private filterProducts(): void {
     const filtered = this.products().filter(p => {
-      const byStore = this.selectedStore ? p.idStore === +this.selectedStore : true;
+      const byStore = this.selectedStore ? p.tienda_id  === +this.selectedStore : true;
       const byBrand = this.selectedBrand ? p.brand === this.selectedBrand : true;
       return byStore && byBrand;
     });
@@ -66,7 +85,6 @@ export default class ProductsComponent implements OnInit {
     );
   }
 
-  
   addProduct(): void {
     this.#router.navigate(['/add-product']);
   }

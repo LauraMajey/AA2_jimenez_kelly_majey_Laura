@@ -20,8 +20,11 @@ export default class StoreComponent implements OnInit {
   protected stores = signal<Store[]>([]);
 
   ngOnInit(): void {
-    this.stores.set(this.#storeService.getStores());
-  }
+  this.#storeService.getStores().subscribe({
+    next: (data) => this.stores.set(data),
+    error: (err) => console.error('Error cargando tiendas:', err)
+  });
+}
 
   getScore(score: number): string {
     return this.#storeService.getScore(score);
