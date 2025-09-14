@@ -1,42 +1,28 @@
 <div class="crud-form-container">
   <h2>Agregar Nuevo Producto</h2>
-  <form>
+  <form (submit)="onSubmit($event)" enctype="multipart/form-data">
+
+    <div><label for="name">Nombre:</label><input type="text" id="name" name="name" required></div>
+    <div><label for="description">Descripción:</label><textarea id="description" name="description" required></textarea></div>
+    <div><label for="price">Precio:</label><input type="text" id="price" name="price" required></div>
+    <div><label for="stock">Stock:</label><input type="number" id="stock" name="stock" required></div>
+
+
     <div>
-      <label for="name">Nombre:</label>
-      <input type="text" id="name" name="name" required>
+      <label for="tienda_id">Tienda:</label>
+      <select id="tienda_id" name="tienda_id" required>
+        <option value="" disabled selected>Selecciona una tienda</option>
+        <option *ngFor="let store of stores" [value]="store.id">{{ store.name }}</option>
+      </select>
     </div>
-    <div>
-      <label for="description">Descripción:</label>
-      <textarea id="description" name="description" required></textarea>
-    </div>
-    <div>
-      <label for="price">Precio:</label>
-      <input type="number" id="price" name="price" required>
-    </div>
-    <div>
-      <label for="brand">Marca:</label>
-      <input type="text" id="brand" name="brand" required>
-    </div>
-    <div>
-      <label for="type">Tipo:</label>
-      <input type="text" id="type" name="type" required>
-    </div>
-    <div>
-      <label for="release_date">Fecha de Lanzamiento:</label>
-      <input type="date" id="release_date" name="release_date" required>
-    </div>
-    <div>
-      <label for="image_url">URL de la Imagen:</label>
-      <input type="url" id="image_url" name="image_url" required>
-    </div>
-    <div>
-      <label for="idStore">ID de la Tienda:</label>
-      <input type="number" id="idStore" name="idStore" required>
-    </div>
-    <div>
-      <label for="link">Enlace de Compra:</label>
-      <input type="url" id="link" name="link" required>
-    </div>
+
+
+    <div><label for="brand">Marca:</label><input type="text" id="brand" name="brand" required></div>
+    <div><label for="type">Tipo:</label><input type="text" id="type" name="type" required></div>
+    <div><label for="release_date">Fecha de Lanzamiento:</label><input type="date" id="release_date" name="release_date" required></div>
+    <div><label for="link">Enlace de Compra:</label><input type="url" id="link" name="link" required></div>
+    <div><label for="image">Imagen del Producto:</label><input type="file" id="image" name="image" accept="image/*" required></div>
+
     <button type="submit">Guardar Producto</button>
   </form>
 </div>

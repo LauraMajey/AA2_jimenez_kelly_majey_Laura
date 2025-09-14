@@ -3,45 +3,65 @@ import pool from '../db.js';
 
 const router = express.Router();
 
-// Crear tienda
+
 router.post('/', async (req, res) => {
-  const { nombre, direccion, telefono } = req.body;
-  const [result] = await pool.query(
-    'INSERT INTO tiendas (nombre, direccion, telefono) VALUES (?, ?, ?)',
-    [nombre, direccion, telefono]
-  );
-  res.json({ id: result.insertId, nombre, direccion, telefono });
-});
-
-// Listar todas las tiendas
-router.get('/', async (req, res) => {
-  const [rows] = await pool.query('SELECT * FROM tiendas');
-  res.json(rows);
-});
-
-// Obtener tienda por ID ✅
-router.get('/:id', async (req, res) => {
-  const [rows] = await pool.query('SELECT * FROM tiendas WHERE id = ?', [req.params.id]);
-  if (rows.length === 0) {
-    return res.status(404).json({ message: 'Tienda no encontrada' });
+  const { image } = req.body;
+  try {
+    const [result] = await pool.query(
+      'INSERT INTO tiendas (image) VALUES (?)',
+      [image]
+    );
+    res.status(201).json({ id: result.insertId, image });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al crear la tienda', error: error.message });
   }
-  res.json(rows[0]);
 });
 
-// Actualizar tienda
+
+router.get('/', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM tiendas');
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener las tiendas', error: error.message });
+  }
+});
+
+
+router.get('/:id', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM tiendas WHERE id = ?', [req.params.id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Tienda no encontrada' });
+    }
+    res.json(rows[0]);
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener la tienda', error: error.message });
+  }
+});
+
+
 router.put('/:id', async (req, res) => {
-  const { nombre, direccion, telefono } = req.body;
-  await pool.query(
-    'UPDATE tiendas SET nombre=?, direccion=?, telefono=? WHERE id=?',
-    [nombre, direccion, telefono, req.params.id]
-  );
-  res.json({ message: 'Tienda actualizada' });
+  const { image } = req.body;
+  try {
+    await pool.query(
+      'UPDATE tiendas SET image=? WHERE id=?',
+      [image, req.params.id]
+    );
+    res.json({ message: 'Tienda actualizada' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al actualizar la tienda', error: error.message });
+  }
 });
 
-// Eliminar tienda
+
 router.delete('/:id', async (req, res) => {
-  await pool.query('DELETE FROM tiendas WHERE id=?', [req.params.id]);
-  res.json({ message: 'Tienda eliminada' });
+  try {
+    await pool.query('DELETE FROM tiendas WHERE id=?', [req.params.id]);
+    res.json({ message: 'Tienda eliminada' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al eliminar la tienda', error: error.message });
+  }
 });
 
 export default router;
