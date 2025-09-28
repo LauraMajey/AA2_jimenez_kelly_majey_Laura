@@ -1,28 +1,68 @@
-<div class="crud-form-container">
-  <h2>Agregar Nuevo Producto</h2>
-  <form (submit)="onSubmit($event)" enctype="multipart/form-data">
+<div class="crud-form-container container mt-5" *ngIf="stores.length && marcas.length">
+  <h2 class="form-title mb-4">{{ product ? 'Actualizar Producto' : 'Agregar Nuevo Producto' }}</h2>
 
-    <div><label for="name">Nombre:</label><input type="text" id="name" name="name" required></div>
-    <div><label for="description">Descripción:</label><textarea id="description" name="description" required></textarea></div>
-    <div><label for="price">Precio:</label><input type="text" id="price" name="price" required></div>
-    <div><label for="stock">Stock:</label><input type="number" id="stock" name="stock" required></div>
+  <form (submit)="onSubmit($event)" enctype="multipart/form-data" class="crud-form">
+    <div class="form-group">
+      <label for="name">Nombre:</label>
+      <input type="text" id="name" name="name" required [value]="product?.name || ''" class="form-control">
+    </div>
 
+    <div class="form-group">
+      <label for="description">Descripción:</label>
+      <textarea id="description" name="description" required class="form-control">{{ product?.description || '' }}</textarea>
+    </div>
 
-    <div>
+    <div class="form-group">
+      <label for="price">Precio:</label>
+      <input type="text" id="price" name="price" required [value]="product?.price || ''" class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label for="stock">Stock:</label>
+      <input type="number" id="stock" name="stock" required [value]="product?.stock || ''" class="form-control">
+    </div>
+
+    <div class="form-group">
       <label for="tienda_id">Tienda:</label>
-      <select id="tienda_id" name="tienda_id" required>
-        <option value="" disabled selected>Selecciona una tienda</option>
-        <option *ngFor="let store of stores" [value]="store.id">{{ store.name }}</option>
+      <select id="tienda_id" name="tienda_id" required [value]="product?.tienda_id || ''" class="form-select">
+        <option value="" disabled>Selecciona una tienda</option>
+        <option *ngFor="let store of stores" [value]="store?.id">{{ store?.name }}</option>
       </select>
     </div>
 
+    <div class="form-group">
+      <label for="marca_id">Marca:</label>
+      <select id="marca_id" name="marca_id" (change)="onMarcaChange($event)" required [value]="product?.marca_id || ''" class="form-select">
+        <option value="" disabled>Selecciona una marca</option>
+        <option *ngFor="let marca of marcas" [value]="marca.id">{{ marca.nombre }}</option>
+        <option value="other">Otra marca...</option>
+      </select>
+      <input *ngIf="showNewMarca" type="text" placeholder="Ingresa nueva marca" [(ngModel)]="newMarca" name="newMarca" class="form-control mt-2">
+    </div>
 
-    <div><label for="brand">Marca:</label><input type="text" id="brand" name="brand" required></div>
-    <div><label for="type">Tipo:</label><input type="text" id="type" name="type" required></div>
-    <div><label for="release_date">Fecha de Lanzamiento:</label><input type="date" id="release_date" name="release_date" required></div>
-    <div><label for="link">Enlace de Compra:</label><input type="url" id="link" name="link" required></div>
-    <div><label for="image">Imagen del Producto:</label><input type="file" id="image" name="image" accept="image/*" required></div>
+    <div class="form-group">
+      <label for="type">Tipo:</label>
+      <input type="text" id="type" name="type" required [value]="product?.type || ''" class="form-control">
+    </div>
 
-    <button type="submit">Guardar Producto</button>
+    <div class="form-group">
+      <label for="release_date">Fecha de Lanzamiento:</label>
+      <input type="date" id="release_date" name="release_date" required [value]="product?.release_date | date:'yyyy-MM-dd'" class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label for="link">Enlace de Compra:</label>
+      <input type="url" id="link" name="link" required [value]="product?.link || ''" class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label for="image">Imagen del Producto:</label>
+      <input type="file" id="image" name="image" accept="image/*" class="form-control">
+      <p *ngIf="product?.image_url" class="mt-2 text-muted">Imagen actual: {{ product?.image_url }}</p>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-4">
+      {{ product ? 'Actualizar Producto' : 'Guardar Producto' }}
+    </button>
   </form>
 </div>

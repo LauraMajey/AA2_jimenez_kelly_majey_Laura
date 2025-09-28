@@ -34,12 +34,11 @@
     <div class="card-container">
       <div *ngFor="let item of filteredProducts()" class="card">
         <div class="card-image">
-          <img
-            *ngIf="item.image_url; else noImage"
-            [ngSrc]="item.image_url"
+          <img 
+            [ngSrc]="'http://localhost:3000/' + item.image_url"
             [alt]="item.name"
-            width="150"
-            height="150"
+            width="200" 
+            height="200"
           />
           <ng-template #noImage>
             <div class="imageEmpty">Sin imagen</div>
@@ -50,7 +49,7 @@
           <h3>{{ item.name || 'Producto' }}</h3>
           <p class="price">{{ item.price | currency:'COP' }}</p>
           <p class="meta">
-            Marca: <strong>{{ item.brand }}</strong><br />
+            Marca: <strong>{{ brandName(item.marca_id) }}</strong>
             Tipo: <strong>{{ item.type }}</strong><br />
             Lanzado: {{ item.release_date | date:'mediumDate' }}
           </p>

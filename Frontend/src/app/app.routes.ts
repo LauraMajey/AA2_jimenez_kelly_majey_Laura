@@ -20,6 +20,7 @@ export const routes: Routes = [
       { path: 'store/:id', component: StoreComponent },
       { path: 'store', component: StoreComponent },
       { path: 'add-product', component: CrudProductsComponent },
+      { path: 'update-product/:id', component: CrudProductsComponent },
     ]
   },
   { path: '**', redirectTo: 'home' } 

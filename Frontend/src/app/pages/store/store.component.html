@@ -2,7 +2,12 @@
   <h2 class="title">Nuestros aliados</h2>
   <div class="card-container">
     <div *ngFor="let store of stores()" class="card">
-      <img [ngSrc]="store?.image || 'assets/default-store.jpg'" [alt]="store?.name || 'Tienda'" width="150" height="150"/>
+      <img 
+        [ngSrc]="'http://localhost:3000/' + (store?.image || 'assets/default-store.jpg')" 
+        [alt]="store?.name || 'Tienda'" 
+        width="150" 
+        height="150"
+      />
       <h3>{{ store?.name }}</h3>
       <p>{{ store?.description }}</p>
       <p>Calificación: {{ getScore(store?.score || 0) }}</p>
@@ -11,4 +16,3 @@
       </a>
     </div>
   </div>
-</div>

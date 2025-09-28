@@ -5,7 +5,7 @@ export interface Product {
   price: string;
   stock: number;
   tienda_id: number;
-  brand: string;
+  marca_id?: number;
   type: string;
   release_date: string;
   image_url: string | null;

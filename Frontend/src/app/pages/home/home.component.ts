@@ -3,22 +3,33 @@ import { CommonModule, NgOptimizedImage, DatePipe, CurrencyPipe } from '@angular
 import { FormsModule } from '@angular/forms';
 import { TuiButton } from '@taiga-ui/core';
 import { RouterModule } from '@angular/router';
+
 import { ProductService } from '../../services/product.service';
+import { MarcasService, Marca } from '../../services/marcas.service';
 import { Product } from '../../interfaces/product';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, NgOptimizedImage, TuiButton, RouterModule, FormsModule, DatePipe, CurrencyPipe],
+  imports: [
+    CommonModule,
+    NgOptimizedImage,
+    TuiButton,
+    RouterModule,
+    FormsModule,
+    DatePipe,
+    CurrencyPipe,
+  ],
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+  styleUrls: ['./home.component.scss'],
 })
 export default class HomeComponent implements OnInit {
-  
   #productService = inject(ProductService);
+  #marcasService = inject(MarcasService);
 
   public allProducts = signal<Product[]>([]);
   public filteredProducts = signal<Product[]>([]);
+  public marcas = signal<Marca[]>([]);
 
   public searchTerm = '';
   public selectedType = '';
@@ -27,22 +38,34 @@ export default class HomeComponent implements OnInit {
   public types: string[] = [];
 
   ngOnInit() {
+    this.loadMarcas();
     this.loadProducts();
+  }
+
+  loadMarcas() {
+    this.#marcasService.getMarcas().subscribe({
+      next: (data) => this.marcas.set(data),
+      error: (err) => console.error('Error loading marcas:', err),
+    });
   }
 
   loadProducts() {
     this.#productService.getProducts().subscribe({
       next: (data) => {
-        // Asegura que data sea un array antes de establecer la señal
-        this.allProducts.set(Array.isArray(data) ? data : []);
-        // Mapea los datos de forma segura para construir las opciones de filtro
-        this.brands = [...new Set(data.map(p => p.brand))].sort();
-        this.types = [...new Set(data.map(p => p.type))].sort();
+        const safeData = Array.isArray(data) ? data : [];
+        this.allProducts.set(safeData);
+
+        // Obtener lista única de marcas usando marca_id
+        this.brands = [...new Set(
+          safeData.map(p => this.marcas().find(m => m.id === p.marca_id)?.nombre)
+        )].filter(Boolean) as string[];
+
+        // Lista de tipos
+        this.types = [...new Set(safeData.map(p => p.type))].sort();
+
         this.applyFilters();
       },
-      error: (err) => {
-        console.error('Error al cargar productos:', err);
-      }
+      error: (err) => console.error('Error loading products:', err),
     });
   }
 
@@ -51,16 +74,28 @@ export default class HomeComponent implements OnInit {
     const type = this.selectedType.trim().toLowerCase();
     const brand = this.selectedBrand.trim().toLowerCase();
 
-    // Usa el operador ?. (encadenamiento opcional) para prevenir errores
-    const result = this.allProducts().filter(p =>
-      (!type || p.type?.toLowerCase() === type) &&
-      (!brand || p.brand?.toLowerCase() === brand) &&
-      (p.name?.toLowerCase().includes(term) || p.brand?.toLowerCase().includes(term))
+    const result = this.allProducts().filter((p) => {
+      const brandName = this.marcas().find(m => m.id === p.marca_id)?.nombre?.toLowerCase() ?? '';
+
+      return (
+        (!type || p.type?.toLowerCase() === type) &&
+        (!brand || brandName === brand) &&
+        (p.name?.toLowerCase().includes(term) ||
+         brandName.includes(term) ||
+         p.description?.toLowerCase().includes(term))
+      );
+    });
+
+    // Ordenar por fecha de lanzamiento (más reciente primero)
+    result.sort((a, b) =>
+      new Date(b.release_date).getTime() - new Date(a.release_date).getTime()
     );
 
-    result.sort((a, b) => new Date(b.release_date).getTime() - new Date(a.release_date).getTime());
+    // Si no hay filtros, mostrar solo los primeros 5 productos
+    this.filteredProducts.set(term || type || brand ? result : result.slice(0, 5));
+  }
 
-    const hasFilters = term || type || brand;
-    this.filteredProducts.set(hasFilters ? result : result.slice(0, 5));
+  public brandName(id: number | undefined): string {
+    return this.marcas().find((m) => m.id === id)?.nombre || 'Marca desconocida';
   }
 }

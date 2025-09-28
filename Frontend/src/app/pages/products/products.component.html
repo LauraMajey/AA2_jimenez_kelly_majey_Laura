@@ -1,4 +1,5 @@
 <div class="products-page">
+
   <!-- Sección de filtros -->
   <section class="filters-section">
     <h2>🎯 Filtrar productos</h2>
@@ -35,8 +36,8 @@
   <section class="product-list-container">
     <div class="product-card" *ngFor="let item of filteredProducts()">
       <img 
-        [ngSrc]="item.image_url ?? 'assets/placeholder.webp'" 
-        [alt]="item.name ?? 'Imagen de producto'" 
+        [ngSrc]="'http://localhost:3000/' + item.image_url"
+        [alt]="item.name"
         width="200" 
         height="200"
       />
@@ -55,9 +56,12 @@
       No se encontraron productos que coincidan con los filtros.
     </div>
   </section>
-   <div class="add-button-global">
+
+  <!-- Botón de añadir producto -->
+  <div class="add-button-global">
     <a [routerLink]="['/add-product']">
-      <button tuiButton appearance="secondary">➕ Añadir a tienda</button>
+      <button tuiButton appearance="secondary">➕ Añadir nuevo producto</button>
     </a>
   </div>
+
 </div>

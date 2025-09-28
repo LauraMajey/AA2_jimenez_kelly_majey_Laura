@@ -1,6 +1,5 @@
 import express from 'express';
 import pool from '../db.js'; // tu configuración de conexión a la base de datos
-
 const router = express.Router();
 
 // Crear comentario

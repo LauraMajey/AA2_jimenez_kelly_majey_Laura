@@ -1,69 +1,81 @@
-<div class="container product-detail" *ngIf="product() && store()">
-  <!-- Sección de producto -->
-  <section class="product">
-    <div class="image">
+<!-- PRODUCTO -->
+<div class="product container mt-5" *ngIf="product()">
+  <div class="row g-4 align-items-center">
+    <!-- Imagen a la izquierda -->
+    <div class="col-md-5 text-center">
       <img
-        [src]="product()?.image_url"
+        [src]="'http://localhost:3000/' + product()?.image_url"
         [alt]="product()?.name"
-        class="img-fluid rounded shadow"
-      />
+        class="img-fluid rounded-4 shadow product-image"
+      >
     </div>
 
-    <div class="product-info">
-      <h1 class="product-title">{{ product()?.name }}</h1>
+    <!-- Información a la derecha -->
+    <div class="col-md-7 product-info">
+      <h2 class="fw-bold product-title">{{ product()?.name }}</h2>
+      <ul class="list-unstyled text-muted mb-3">
+        <li>Marca: <strong>{{ brandName(product()?.marca_id) }}</strong></li>
+        <li>Tipo: <strong>{{ product()?.type }}</strong></li>
+      </ul>
       <p class="product-description">{{ product()?.description }}</p>
-      <h2 class="price">{{ product()?.price | currency: 'COP' }}</h2>
+      <h4 class="text-success fw-semibold product-price">
+        Precio: ${{ product()?.price | number:'1.0-0' }}
+      </h4>
       <p><strong>Stock:</strong> {{ product()?.stock }}</p>
-      <p><strong>Marca:</strong> {{ product()?.brand }}</p>
-      <p><strong>Tipo:</strong> {{ product()?.type }}</p>
-      <p><strong>Lanzamiento:</strong> {{ product()?.release_date | date: 'longDate' }}</p>
 
-      <a
-        [href]="product()?.link"
-        target="_blank"
-        class="btn-outline-secondary"
-      >
-        Comprar
-      </a>
-
-      <hr />
-
-      <!-- Logo y datos básicos de la tienda -->
-      <div class="store-info">
-        <h5>Vendido por: {{ store()?.name }}</h5>
-        <img
-          *ngIf="store()?.image"
-          [src]="store()?.image"
-          [alt]="store()?.name"
-          class="store-logo"
-        />
-        <p>{{ store()?.description }}</p>
-        <p><strong>Categoría:</strong> {{ store()?.category }}</p>
-        <p><strong>Puntaje:</strong> {{ store()?.score }}</p>
+      <div class="d-flex flex-wrap gap-3 mt-4">
+        <a [href]="product()?.link" target="_blank" class="btn btn-outline-primary">
+          🛒 Ir a la tienda 
+        </a>
+        <a [routerLink]="['/update-product', product()?.id]">
+          <button class="btn btn-outline-primary">
+            ✏️ Actualizar Producto
+          </button>
+        </a>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- Sección de comentarios -->
-  <section class="comments-section">
-    <h2>🗨️ Comentarios</h2>
+<!-- TIENDA -->
+<div class="store-info container mt-5 mb-5" *ngIf="store()">
+  <h4 class="mb-4 fs-3">🏬 Información de la tienda</h4>
+  <div class="row align-items-center">
+    <div class="col-md-3 text-center">
+      <img
+        [src]="'http://localhost:3000/' + store()?.image"
+        [alt]="store()?.name"
+        class="store-logo rounded-circle shadow"
+        width="120"
+      >
+    </div>
+    <div class="col-md-9">
+      <h5 class="fw-bold fs-4">{{ store()?.name }}</h5>
+      <p class="mb-1 fs-5">{{ store()?.address }}</p>
+      <p class="mb-1 fs-5">📞 {{ store()?.phone }}</p>
+      <p class="fs-5">⭐ {{ store()?.score }} ({{ store()?.likes }} likes)</p>
+    </div>
+  </div>
+</div>
 
-    <div class="comment-input">
+<!-- COMENTARIOS -->
+<div class="comments-section container mt-5">
+  <h4 class="mb-4 fs-3">💬 Comentarios</h4>
+  <div class="comment-list">
+    <div *ngFor="let comentario of comments()" class="comment-item mb-5">
+      <p class="fs-5">{{ comentario.text }}</p>
+      <small class="text-muted">{{ comentario.timestamp | date:'medium' }}</small>
+    </div>
+
+    <div class="comment-input mt-4">
       <textarea
         [(ngModel)]="newCommentText"
-        placeholder="Escribe tu comentario..."
-        rows="3"
-      ></textarea>
-      <button (click)="addComment()" [disabled]="!newCommentText">
+        class="form-control comment-textarea"
+        rows="6"
+        placeholder="Escribe tu comentario...">
+      </textarea>
+      <button class="btn btn-success mt-3" (click)="addComment()">
         Enviar
       </button>
     </div>
-
-    <div class="comments-list">
-      <div *ngFor="let comment of comments()" class="comment-item">
-        <p>{{ comment.text }}</p>
-        <small>{{ comment.timestamp | date: 'short' }}</small>
-      </div>
-    </div>
-  </section>
+  </div>
 </div>
